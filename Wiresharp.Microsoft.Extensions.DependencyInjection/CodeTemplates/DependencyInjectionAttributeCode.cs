@@ -2,7 +2,6 @@
 
 internal class DependencyInjectionAttributeCode
 {
-    public const string ClassName = "DependencyInjectionAttribute";
     public const string Attribute = $$"""
         namespace Wiresharp
         {
@@ -12,4 +11,8 @@ internal class DependencyInjectionAttributeCode
             }
         }
         """;
+
+    public const string ClassName = "InjectDependencyAttribute";
+    private const string Namespace = "Wiresharp";
+    public static string ClassFullName => $"{Namespace}.{ClassName}";
 }

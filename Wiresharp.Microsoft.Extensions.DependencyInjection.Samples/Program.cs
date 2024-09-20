@@ -1,9 +1,7 @@
-﻿namespace Wiresharp.Microsoft.Extensions.DependencyInjection.Samples;
+﻿using Microsoft.Extensions.Hosting;
 
-internal class Program
-{
-    static void Main(string[] args)
-    {
-        Console.WriteLine("Hello, World!");
-    }
-}
+var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings());
+
+var app = builder.Build();
+
+app.Run();

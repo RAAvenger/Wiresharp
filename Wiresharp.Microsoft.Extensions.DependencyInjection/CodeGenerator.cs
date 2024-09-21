@@ -10,11 +10,13 @@ public sealed class CodeGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(static ctx => ctx.AddSource($"{DependencyInjectionAttributeCode.Attribute}.g.cs",
-            SourceText.From(DependencyInjectionAttributeCode.Attribute, Encoding.UTF8)));
+        context.RegisterPostInitializationOutput(static ctx => ctx.AddSource($"{TemplateDependencyInjectionAttribute.Name}.g.cs",
+            SourceText.From(TemplateDependencyInjectionAttribute.Code, Encoding.UTF8)));
+        context.RegisterPostInitializationOutput(static ctx => ctx.AddSource($"{TemplateIDependencyInstaller.Name}.g.cs",
+            SourceText.From(TemplateIDependencyInstaller.Code, Encoding.UTF8)));
 
         context.SyntaxProvider
-           .ForAttributeWithMetadataName(DependencyInjectionAttributeCode.ClassFullName,
+           .ForAttributeWithMetadataName(TemplateDependencyInjectionAttribute.FullName,
                predicate: static (s, _) => true,
                transform: static (ctx, _) => ctx)
            .Where(static m => true);

@@ -2,4 +2,5 @@
 
 public sealed class DependencyInstallerInfo
 {
+    public required string FullName { get; init; }
 }

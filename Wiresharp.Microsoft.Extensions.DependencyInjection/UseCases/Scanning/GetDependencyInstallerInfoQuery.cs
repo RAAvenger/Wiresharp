@@ -6,13 +6,17 @@ namespace Wiresharp.Microsoft.Extensions.DependencyInjection.UseCases.Scanning;
 
 internal sealed class GetDependencyInstallerInfoQuery : IGetDependencyInstallerInfoQuery
 {
-    public DependencyInstallerInfo RunQuery(SemanticModel semanticModel, SyntaxNode classDeclarationSyntax)
+    public DependencyInstallerInfo? RunQuery(SemanticModel semanticModel, SyntaxNode classDeclarationSyntax)
     {
-        // Get the semantic representation of the enum syntax
-        if (semanticModel.GetDeclaredSymbol(classDeclarationSyntax) is not INamedTypeSymbol enumSymbol)
+        if (semanticModel.GetDeclaredSymbol(classDeclarationSyntax) is not INamedTypeSymbol classSymbol)
         {
-            // something went wrong
+            // It should not happen in any normal circumstance
+            return null;
         }
-        throw new NotImplementedException();
+
+        return new()
+        {
+            FullName = $"{classSymbol.ContainingNamespace}.{classSymbol.Name}"
+        };
     }
 }

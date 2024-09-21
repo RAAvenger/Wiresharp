@@ -1,7 +1,9 @@
 using FluentAssertions;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 using Wiresharp.Microsoft.Extensions.DependencyInjection.CodeTemplates;
+using Wiresharp.Microsoft.Extensions.DependencyInjection.UseCases.Dtos;
 using Wiresharp.Microsoft.Extensions.DependencyInjection.UseCases.Scanning;
 using Wiresharp.Microsoft.Extensions.DependencyInjection.UseCases.Scanning.Abstraction;
 using Xunit;
@@ -18,10 +20,12 @@ public class GetDependencyInstallerInfoQueryTests
     }
 
     [Fact]
-    public void RunQuery_ShouldReturnNull_WhenClassDeclarationSyntaxIsNotAssociatedWithANamedTypeSymbol()
+    public void RunQuery_ShouldReturnInfoContainingClassFullName_WhenClassDeclarationSyntaxIsNotAssociatedWithANamedTypeSymbol()
     {
         // Arrange
-        var classDeclaration = SyntaxFactory.ClassDeclaration("DummyInstaller")
+        var namespaceName = "DummyNamespace";
+        var className = "DummyInstaller";
+        var classDeclaration = SyntaxFactory.ClassDeclaration(className)
             .WithAttributeLists([
                 SyntaxFactory.AttributeList([
                     SyntaxFactory.Attribute(
@@ -35,6 +39,50 @@ public class GetDependencyInstallerInfoQueryTests
                         SyntaxFactory.IdentifierName(TemplateIDependencyInstaller.Name))]))
             .WithMembers([
                 SyntaxFactory.MethodDeclaration(
+                    SyntaxFactory.ParseTypeName("void"),
+                        TemplateIDependencyInstaller.MethodName)
+                            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+                            .AddParameterListParameters(
+                                SyntaxFactory.Parameter(
+                                        SyntaxFactory.Identifier(TemplateIDependencyInstaller.FirstParameterName))
+                                            .WithType(
+                                                SyntaxFactory.IdentifierName(TemplateIDependencyInstaller.FirstParameterType)))
+                            .WithBody(SyntaxFactory.Block())]);
+
+        var syntaxTree = CSharpSyntaxTree.Create(
+            SyntaxFactory.CompilationUnit()
+                .AddMembers(
+                    SyntaxFactory.NamespaceDeclaration(
+                        SyntaxFactory.ParseName(namespaceName))
+                        .AddMembers(classDeclaration)));
+
+        var semanticModel = CSharpCompilation.Create(assemblyName: "UnitTests", syntaxTrees: [syntaxTree])
+            .GetSemanticModel(syntaxTree);
+        var classDeclarationSyntax = (syntaxTree.GetRoot()
+            .ChildNodes()
+            .FirstOrDefault(x => x is NamespaceDeclarationSyntax) as NamespaceDeclarationSyntax)
+            ?.Members
+            .FirstOrDefault(x => x.IsEquivalentTo(classDeclaration));
+
+        var expected = new DependencyInstallerInfo
+        {
+            FullName = $"{namespaceName}.{className}"
+        };
+
+        // Act
+        var actual = _sut.RunQuery(semanticModel, classDeclarationSyntax);
+
+        // Assert
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void RunQuery_ShouldReturnNull_WhenGivenSyntaxIsNotAssociatedWithANamedTypeSymbol()
+    {
+        // Arrange
+        var methodDeclaration = SyntaxFactory.CompilationUnit()
+            .AddMembers(
+                SyntaxFactory.MethodDeclaration(
                         SyntaxFactory.ParseTypeName("void"),
                         TemplateIDependencyInstaller.MethodName)
                     .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
@@ -43,112 +91,17 @@ public class GetDependencyInstallerInfoQueryTests
                                 SyntaxFactory.Identifier(TemplateIDependencyInstaller.FirstParameterName))
                             .WithType(
                                 SyntaxFactory.IdentifierName(TemplateIDependencyInstaller.FirstParameterType)))
-                    .WithBody(SyntaxFactory.Block())]);
+                    .WithBody(SyntaxFactory.Block()));
 
-        var semanticModel = GetSemanticModel(classDeclaration.ToString());
+        var syntaxTree = SyntaxFactory.SyntaxTree(methodDeclaration);
+        var classDeclarationSyntax = syntaxTree.GetRoot().FindNode(methodDeclaration.FullSpan);
+        var semanticModel = CSharpCompilation.Create(assemblyName: "UnitTests", syntaxTrees: [syntaxTree])
+            .GetSemanticModel(syntaxTree);
 
         // Act
-        var actual = _sut.RunQuery(semanticModel, classDeclaration);
+        var actual = _sut.RunQuery(semanticModel, classDeclarationSyntax);
 
         // Assert
         actual.Should().BeNull();
-    }
-
-    //[Fact]
-    //public void RunQuery_ShouldNotReturnNull_WhenClassDeclarationSyntaxIsNotAssociatedWithANamedTypeSymbol()
-    //{
-    //    // Arrange
-    //    var tree = SyntaxTree(
-    //    //CODE FROM ROSLYN QUOTER:
-    //    CompilationUnit()
-    //    .WithMembers(
-    //        SingletonList<MemberDeclarationSyntax>(
-    //            ClassDeclaration("DummyInstaller")
-    //            .WithAttributeLists(
-    //                SingletonList<AttributeListSyntax>(
-    //                    AttributeList(
-    //                        SingletonSeparatedList<AttributeSyntax>(
-    //                            Attribute(
-    //                                IdentifierName("InjectDependency"))))))
-    //            .WithModifiers(
-    //                TokenList(
-    //                    Token(SyntaxKind.InternalKeyword)))
-    //            .WithBaseList(
-    //                BaseList(
-    //                    SingletonSeparatedList<BaseTypeSyntax>(
-    //                        SimpleBaseType(
-    //                            IdentifierName("IDependencyInstaller")))))
-    //            .WithMembers(
-    //                SingletonList<MemberDeclarationSyntax>(
-    //                    MethodDeclaration(
-    //                        PredefinedType(
-    //                            Token(SyntaxKind.VoidKeyword)),
-    //                        Identifier("InstallDependencies"))
-    //                    .WithModifiers(
-    //                        TokenList(
-    //                            Token(SyntaxKind.PublicKeyword)))
-    //                    .WithParameterList(
-    //                        ParameterList(
-    //                            SingletonSeparatedList<ParameterSyntax>(
-    //                                Parameter(
-    //                                    Identifier("services"))
-    //                                .WithType(
-    //                                    IdentifierName("IServiceCollection")))))
-    //                    .WithBody(
-    //                        Block())))))
-    //    .NormalizeWhitespace()
-    //    //END
-    //    );
-    //    var root = tree.GetCompilationUnitRoot();
-    //    var compilation = CSharpCompilation.Create("HelloWorld")
-    //        .AddReferences(MetadataReference.CreateFromFile(typeof(string).Assembly.Location))
-    //        .AddSyntaxTrees(tree);
-    //    var semanticModel = compilation.GetSemanticModel(tree);
-    //    var classDeclaration = SyntaxFactory.ClassDeclaration("DummyInstaller")
-    //    .WithAttributeLists(
-    //        SingletonList<AttributeListSyntax>(
-    //            AttributeList(
-    //                SingletonSeparatedList<AttributeSyntax>(
-    //                    Attribute(
-    //                        IdentifierName("InjectDependency"))))))
-    //    .WithModifiers(
-    //        TokenList(
-    //            Token(SyntaxKind.InternalKeyword)))
-    //    .WithBaseList(
-    //        BaseList(
-    //            SingletonSeparatedList<BaseTypeSyntax>(
-    //                SimpleBaseType(
-    //                    IdentifierName("IDependencyInstaller")))))
-    //    .WithMembers(
-    //        SingletonList<MemberDeclarationSyntax>(
-    //            MethodDeclaration(
-    //                PredefinedType(
-    //                    Token(SyntaxKind.VoidKeyword)),
-    //                Identifier("InstallDependencies"))
-    //            .WithModifiers(
-    //                TokenList(
-    //                    Token(SyntaxKind.PublicKeyword)))
-    //            .WithParameterList(
-    //                ParameterList(
-    //                    SingletonSeparatedList<ParameterSyntax>(
-    //                        Parameter(
-    //                            Identifier("services"))
-    //                        .WithType(
-    //                            IdentifierName("IServiceCollection")))))
-    //            .WithBody(
-    //                Block())));
-    //    // Act
-    //    _sut.RunQuery(semanticModel,
-
-    //    // Assert
-    //}
-
-    private static SemanticModel GetSemanticModel(string code)
-    {
-        var tree = CSharpSyntaxTree.ParseText(code);
-        var compilation = CSharpCompilation.Create("HelloWorld")
-             .AddReferences(MetadataReference.CreateFromFile(typeof(string).Assembly.Location))
-             .AddSyntaxTrees(tree);
-        return compilation.GetSemanticModel(tree);
     }
 }

@@ -5,6 +5,8 @@ namespace Wiresharp.Microsoft.Extensions.DependencyInjection.CodeTemplates;
 internal static class TemplateIDependencyInstaller
 {
     public const string Code = $$"""
+        using Microsoft.Extensions.DependencyInjection;
+
         namespace {{CommonCodes.Namespace}}
         {
             internal interface {{Name}}

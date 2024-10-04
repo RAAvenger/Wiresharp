@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		Directory.Packages.props = Directory.Packages.props
+		nuget.integration-tests.config = nuget.integration-tests.config
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wiresharp.Microsoft.Extensions.DependencyInjection.Samples", "Wiresharp.Microsoft.Extensions.DependencyInjection.Samples\Wiresharp.Microsoft.Extensions.DependencyInjection.Samples.csproj", "{D1831A52-BF29-4203-8461-8B0BB63D5C42}"
@@ -21,7 +22,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{E4BB
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{05C7016C-3D54-405F-8F28-7EA9D2AF1B7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wiresharp.Microsoft.Extensions.DependencyInjection.IntegrationTests", "Wiresharp.Microsoft.Extensions.DependencyInjection.IntegrationTests\Wiresharp.Microsoft.Extensions.DependencyInjection.IntegrationTests.csproj", "{832C8C7A-5203-4CB2-8073-B0DCA2722BBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wiresharp.Microsoft.Extensions.DependencyInjection.IntegrationTests", "Wiresharp.Microsoft.Extensions.DependencyInjection.IntegrationTests\Wiresharp.Microsoft.Extensions.DependencyInjection.IntegrationTests.csproj", "{832C8C7A-5203-4CB2-8073-B0DCA2722BBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wiresharp.Microsoft.Extensions.DependencyInjection.NugetIntegrationTests", "Wiresharp.Microsoft.Extensions.DependencyInjection.NugetIntegrationTests\Wiresharp.Microsoft.Extensions.DependencyInjection.NugetIntegrationTests.csproj", "{71138B1F-DB20-44E4-ACBA-3C60866F5C6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +52,10 @@ Global
 		{832C8C7A-5203-4CB2-8073-B0DCA2722BBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{832C8C7A-5203-4CB2-8073-B0DCA2722BBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{832C8C7A-5203-4CB2-8073-B0DCA2722BBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71138B1F-DB20-44E4-ACBA-3C60866F5C6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71138B1F-DB20-44E4-ACBA-3C60866F5C6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71138B1F-DB20-44E4-ACBA-3C60866F5C6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71138B1F-DB20-44E4-ACBA-3C60866F5C6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +65,7 @@ Global
 		{6E52E50A-29B6-4151-B837-77254C5A2EA0} = {05C7016C-3D54-405F-8F28-7EA9D2AF1B7F}
 		{0E299439-B374-4EA7-A2AD-DC3330E75B24} = {05C7016C-3D54-405F-8F28-7EA9D2AF1B7F}
 		{832C8C7A-5203-4CB2-8073-B0DCA2722BBC} = {05C7016C-3D54-405F-8F28-7EA9D2AF1B7F}
+		{71138B1F-DB20-44E4-ACBA-3C60866F5C6B} = {05C7016C-3D54-405F-8F28-7EA9D2AF1B7F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C5AE7F4A-EB1F-4ABA-BD31-567B7E8A4588}
